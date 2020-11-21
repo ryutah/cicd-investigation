@@ -1,0 +1,25 @@
+name: Unit Test
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run unit test with coverage
+        run: go test -v . -race -coverprofile=coverage.txt -covermode=atomic
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: ./coverage.txt
+  codecov:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/coverage.txt
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
